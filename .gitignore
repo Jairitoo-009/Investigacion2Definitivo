@@ -27,3 +27,6 @@ Thumbs.db
 
 # Docker (imágenes locales)
 *.tar
+
+# Archivos internos de la tarea (no van al repo)
+Indicaciones.txt
