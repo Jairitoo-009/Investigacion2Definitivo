@@ -28,5 +28,9 @@ Thumbs.db
 # Docker (imágenes locales)
 *.tar
 
+# Datos de persistencia local (los volúmenes Docker no van al repo)
+product-service/data/
+users-service/data/
+
 # Archivos internos de la tarea (no van al repo)
 Indicaciones.txt

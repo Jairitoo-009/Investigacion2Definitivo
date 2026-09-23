@@ -1,8 +1,32 @@
 # ==============================================================================
 # Docker Compose - API Gateway con NestJS (Investigación II)
-# Define dos servicios que se comunican por una red interna compartida
+# Define tres servicios que se comunican por una red interna compartida
 # ==============================================================================
 services:
+  # ---------------------------------------------------------------------------
+  # Microservicio de Usuarios (puerto 3002)
+  # ---------------------------------------------------------------------------
+  users-service:
+    image: andrey20051809/investigacion2definitivo-users-service:latest
+    build: ./users-service
+    container_name: users-service
+    ports:
+      - "3002:3002"
+    environment:
+      - PORT=${USERS_SERVICE_PORT:-3002}
+    volumes:
+      - users-data:/app/data
+    networks:
+      - api-gateway-network
+    healthcheck:
+      # Verifica que el servicio responde en /health (wget viene en alpine)
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3002/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+    restart: unless-stopped
+
   # ---------------------------------------------------------------------------
   # Microservicio de Productos (puerto 3001)
   # ---------------------------------------------------------------------------
@@ -14,6 +38,8 @@ services:
       - "3001:3001"
     environment:
       - PORT=${PRODUCT_SERVICE_PORT:-3001}
+    volumes:
+      - product-data:/app/data
     networks:
       - api-gateway-network
     healthcheck:
@@ -37,8 +63,13 @@ services:
     environment:
       - PORT=${GATEWAY_PORT:-3000}
       - PRODUCT_SERVICE_URL=${PRODUCT_SERVICE_URL:-http://product-service:3001}
+      - USERS_SERVICE_URL=${USERS_SERVICE_URL:-http://users-service:3002}
+      - THROTTLE_TTL=${THROTTLE_TTL:-15000}
+      - THROTTLE_LIMIT=${THROTTLE_LIMIT:-30}
     depends_on:
       product-service:
+        condition: service_healthy
+      users-service:
         condition: service_healthy
     networks:
       - api-gateway-network
@@ -54,3 +85,8 @@ services:
 networks:
   api-gateway-network:
     driver: bridge
+
+# Volúmenes nombrados: los datos persisten aunque se detengan/recreen los contenedores
+volumes:
+  product-data:
+  users-data:

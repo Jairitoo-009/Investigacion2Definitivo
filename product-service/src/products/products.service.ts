@@ -1,4 +1,11 @@
-import { Injectable, Logger, NotFoundException } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  Logger,
+  NotFoundException,
+} from '@nestjs/common';
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs';
+import { dirname, join } from 'path';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 
@@ -48,6 +55,14 @@ export class ProductsService {
   // Siguiente ID autoincremental
   private nextId = 4;
 
+  // Archivo JSON donde se persisten los productos (montado como volumen Docker)
+  private readonly storageFile = join(process.cwd(), 'data', 'products.json');
+
+  constructor() {
+    // Si ya existe un archivo guardado, se restaura en vez de usar los seeds
+    this.load();
+  }
+
   // Genera un timestamp con formato yyyy-MM-dd HH:mm:ss para los logs
   private timestamp(): string {
     return new Date().toISOString().replace('T', ' ').slice(0, 19);
@@ -56,6 +71,45 @@ export class ProductsService {
   // Registra cada operación realizada en el servicio
   private log(action: string): void {
     this.logger.log(`${this.timestamp()} - ${action}`);
+  }
+
+  // Persiste la lista actual de productos en el archivo JSON
+  private save(): void {
+    try {
+      mkdirSync(dirname(this.storageFile), { recursive: true });
+      writeFileSync(
+        this.storageFile,
+        JSON.stringify(this.products, null, 2),
+      );
+    } catch (error) {
+      const reason = error instanceof Error ? error.message : 'Error desconocido';
+      this.logger.warn(`No se pudo guardar ${this.storageFile}: ${reason}`);
+    }
+  }
+
+  // Restaura los datos desde el archivo JSON si existe (persistencia)
+  private load(): void {
+    try {
+      if (!existsSync(this.storageFile)) return;
+      const raw = JSON.parse(
+        readFileSync(this.storageFile, 'utf8'),
+      ) as Product[];
+      this.products = raw.map((p) => ({ ...p, createdAt: new Date(p.createdAt) }));
+      this.nextId =
+        this.products.reduce((max, p) => Math.max(max, p.id), 0) + 1;
+      this.logger.log('Datos restaurados desde el archivo de persistencia');
+    } catch (error) {
+      const reason = error instanceof Error ? error.message : 'Error desconocido';
+      this.logger.warn(`No se pudo cargar ${this.storageFile}: ${reason}`);
+    }
+  }
+
+  // Verifica si ya existe un producto con el mismo nombre (ignorando mayúsculas)
+  private nameExists(name: string, excludeId?: number): boolean {
+    const normalized = name.trim().toLowerCase();
+    return this.products.some(
+      (p) => p.id !== excludeId && p.name.trim().toLowerCase() === normalized,
+    );
   }
 
   // Lista todos los productos
@@ -76,16 +130,21 @@ export class ProductsService {
 
   // Crea un producto nuevo con ID autoincremental
   create(dto: CreateProductDto): Product {
-    this.log(`POST /products - Creando producto: ${dto.name}`);
+    const name = dto.name.trim();
+    if (this.nameExists(name)) {
+      throw new ConflictException(`Ya existe un producto llamado "${name}"`);
+    }
+    this.log(`POST /products - Creando producto: ${name}`);
     const product: Product = {
       id: this.nextId++,
-      name: dto.name,
-      description: dto.description,
+      name,
+      description: dto.description.trim(),
       price: dto.price,
       stock: dto.stock,
       createdAt: new Date(),
     };
     this.products.push(product);
+    this.save();
     return product;
   }
 
@@ -97,13 +156,25 @@ export class ProductsService {
       throw new NotFoundException(`Producto con id ${id} no encontrado`);
     }
     const current = this.products[index];
+    const name =
+      dto.name !== undefined ? dto.name.trim() : current.name;
+    if (dto.name !== undefined && this.nameExists(name, id)) {
+      throw new ConflictException(`Ya existe un producto llamado "${name}"`);
+    }
+    const description =
+      dto.description !== undefined
+        ? dto.description.trim()
+        : current.description;
     const updated: Product = {
       ...current,
       ...dto,
+      name,
+      description,
       id: current.id,
       createdAt: current.createdAt,
     };
     this.products[index] = updated;
+    this.save();
     return updated;
   }
 
@@ -115,6 +186,7 @@ export class ProductsService {
       throw new NotFoundException(`Producto con id ${id} no encontrado`);
     }
     this.products.splice(index, 1);
+    this.save();
     return { deleted: true, id, message: 'Producto eliminado' };
   }
 }

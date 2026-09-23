@@ -1,0 +1,10 @@
+# Ignorar archivos innecesarios en el contexto de Docker
+node_modules
+dist
+coverage
+.git
+.gitignore
+.env
+*.md
+Dockerfile
+.dockerignore
