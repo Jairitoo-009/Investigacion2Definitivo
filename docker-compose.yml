@@ -7,6 +7,7 @@ services:
   # Microservicio de Productos (puerto 3001)
   # ---------------------------------------------------------------------------
   product-service:
+    image: andrey20051809/investigacion2definitivo-product-service:latest
     build: ./product-service
     container_name: product-service
     ports:
@@ -28,6 +29,7 @@ services:
   # API Gateway (puerto 3000) - punto de entrada único
   # ---------------------------------------------------------------------------
   api-gateway:
+    image: andrey20051809/investigacion2definitivo-api-gateway:latest
     build: ./api-gateway
     container_name: api-gateway
     ports:

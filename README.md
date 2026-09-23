@@ -111,8 +111,20 @@ docker pull andrey20051809/investigacion2definitivo-api-gateway:latest
 docker pull andrey20051809/investigacion2definitivo-product-service:latest
 ```
 
-De todos modos no es necesario: al correr `docker compose up -d --build` las imágenes se construyen
-desde los Dockerfiles que están en el repositorio.
+O bajarlas las dos con Compose:
+
+```bash
+docker compose pull
+```
+
+El `docker-compose.yml` ya referencia estas imágenes, así que también se puede levantar sin compilar:
+
+```bash
+docker compose up -d
+```
+
+De todos modos no es obligatorio: `docker compose up -d --build` construye desde los Dockerfiles que
+están en el repositorio de la misma manera.
 
 ## Cómo probarlo
 
