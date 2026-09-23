@@ -8,9 +8,9 @@ Proyecto académico que implementa un **API Gateway** funcional usando NestJS, D
 
 | #  | Nombre | Rol |
 |----|--------|-----|
-| 1  | _[Integrante 1]_ | — |
-| 2  | _[Integrante 2]_ | — |
-| 3  | _[Integrante 3]_ | — |
+| 1  | _[Integrante 1]_ | Jairo Jose Silva Martinez |
+| 2  | _[Integrante 2]_ | Daniel Emilio Elizondo Gutierrez |
+| 3  | _[Integrante 3]_ | Andrey Gonzalez |
 
 > Reemplaza los nombres con los de tu equipo.
 
