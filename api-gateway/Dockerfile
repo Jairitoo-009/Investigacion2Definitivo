@@ -27,6 +27,9 @@ RUN npm ci --omit=dev
 # Copiar el código compilado desde la etapa de build
 COPY --from=build /app/dist ./dist
 
+# Copiar la interfaz web estática (se sirve desde el gateway)
+COPY --from=build /app/public ./public
+
 # Exponer el puerto del API Gateway
 EXPOSE 3000
 

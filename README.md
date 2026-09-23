@@ -8,11 +8,11 @@ Proyecto académico que implementa un **API Gateway** funcional usando NestJS, D
 
 | #  | Nombre | Rol |
 |----|--------|-----|
-| 1  | _[Integrante 1]_ | Jairo Jose Silva Martinez |
-| 2  | _[Integrante 2]_ | Daniel Emilio Elizondo Gutierrez |
-| 3  | _[Integrante 3]_ | Andrey Gonzalez |
+| 1  | Jairo Jose Silva Martinez | _[Rol]_ |
+| 2  | Daniel Emilio Elizondo Gutierrez | _[Rol]_ |
+| 3  | Andrey Gonzalez | _[Rol]_ |
 
-> Reemplaza los nombres con los de tu equipo.
+> Reemplaza los roles con los de tu equipo.
 
 ---
 
@@ -290,10 +290,29 @@ curl -X DELETE http://localhost:3000/api/products/3
 # → {"deleted":true,"id":3,"message":"Producto eliminado"}
 ```
 
+> 💡 Todos los endpoints se disparan desde el **gateway** (`/api/*`, puerto 3000). El Product Service
+> también se puede llamar directo por el 3001 solo para comparar.
+
+### Probar con la interfaz web (opcional pero recomendado)
+
+Abre **http://localhost:3000/** en el navegador. La página es un cliente HTML que:
+
+1. Llama **solo al gateway** (`/api/*`, puerto 3000) — el navegador nunca ve el puerto 3001.
+2. Muestra la **bitácora de cada petición** (método, ruta, estado HTTP y tiempo de respuesta).
+3. Permite ejecutar listar, obtener, crear, actualizar y eliminar sin usar `curl`.
+
+En paralelo, observa los logs para ver la comunicación real entre servicios:
+
+```bash
+docker compose logs -f api-gateway      # → "Redirigiendo a http://product-service:3001/..."
+docker compose logs -f product-service  # → "GET /products - Listando productos"
+```
+
 ### URLs para probar en el navegador
 
 | URL | Descripción |
 |-----|-------------|
+| http://localhost:3000/ | **Interfaz web de demostración** (HTML/CSS/JS servida por el gateway) |
 | http://localhost:3000/api/health | Salud del Gateway |
 | http://localhost:3000/api/products | Lista de productos **vía Gateway** |
 | http://localhost:3000/api/products/1 | Producto con id 1 |
@@ -349,7 +368,7 @@ curl -X DELETE http://localhost:3000/api/products/3
 ## 11. Estructura del proyecto
 
 ```
-InvestigacionDocker/
+Investigacion2Definitivo/
 ├── api-gateway/                  ← Servicio 1: API Gateway
 │   ├── src/
 │   │   ├── main.ts
@@ -362,6 +381,7 @@ InvestigacionDocker/
 │   │       └── dto/
 │   │           ├── create-product.dto.ts
 │   │           └── update-product.dto.ts
+│   ├── public/                     ← Interfaz web de demostración (HTML/CSS/JS)
 │   ├── package.json
 │   ├── tsconfig.json
 │   ├── tsconfig.build.json
@@ -484,10 +504,10 @@ docker compose ps
 ### Demostración en clase (checklist)
 
 1. Ejecutar `.\run.ps1` y mostrar el levantamiento con healthchecks.
-2. `curl http://localhost:3000/api/health` → responde el Gateway.
-3. `curl http://localhost:3000/api/products` → responde el Product Service **sin que el cliente conozca el 3001**.
-4. Mostrar en paralelo `docker compose logs -f api-gateway` y `docker compose logs -f product-service` para evidenciar la comunicación.
-5. Probar POST/PUT/DELETE y mostrar los logs de creación/actualización/eliminación.
+2. Abrir **http://localhost:3000/** → mostrar la interfaz web (7.1) con los logs abiertos.
+3. En la interfaz: listar, crear, actualizar y eliminar productos **solo vía el gateway**.
+4. Mostrar en paralelo `docker compose logs -f api-gateway` y `docker compose logs -f product-service` para evidenciar que la comunicación ocurrió (quién inicia → qué se transmite → qué servicio la procesa).
+5. `curl http://localhost:3000/api/products` → responde el Product Service **sin que el cliente conozca el 3001**.
 
 ---
 

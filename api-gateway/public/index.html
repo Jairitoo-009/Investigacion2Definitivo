@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>API Gateway — Investigación II</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header>
+    <h1>API Gateway con NestJS</h1>
+    <p class="subtitle">Investigación II · el cliente solo conoce el puerto <strong>3000</strong></p>
+  </header>
+
+  <section class="flow" id="flow">
+    <div class="node client">Cliente<br /><small>Esta página (lado del navegador)</small></div>
+    <div class="arrow">&rarr;</div>
+    <div class="node gateway">API Gateway<br /><small>:3000</small></div>
+    <div class="arrow">&rarr;</div>
+    <div class="node service">Product Service<br /><small>:3001</small></div>
+  </section>
+
+  <main>
+    <section class="card">
+      <h2>Acciones</h2>
+
+      <div class="actions-row">
+        <button id="btn-health" class="btn">Gateway /health</button>
+        <button id="btn-list" class="btn primary">Listar productos</button>
+        <button id="btn-get" class="btn">Obtener por ID</button>
+        <button id="btn-delete" class="btn danger">Eliminar</button>
+      </div>
+
+      <div class="row">
+        <label>ID&nbsp;<input id="input-id" type="number" min="1" placeholder="1" /></label>
+        <button id="btn-get-clear" class="btn ghost">Limpiar</button>
+      </div>
+
+      <details>
+        <summary>Crear producto (POST)</summary>
+        <div class="form-grid">
+          <label>Nombre<input id="c-name" type="text" placeholder="Monitor Samsung" /></label>
+          <label>Descripción<input id="c-desc" type="text" placeholder="Monitor 24 pulgadas" /></label>
+          <label>Precio<input id="c-price" type="number" min="0" placeholder="250" /></label>
+          <label>Stock<input id="c-stock" type="number" min="0" placeholder="15" /></label>
+        </div>
+        <button id="btn-create" class="btn primary">Crear producto</button>
+      </details>
+
+      <details>
+        <summary>Actualizar producto (PUT)</summary>
+        <div class="form-grid">
+          <label>ID<input id="u-id" type="number" min="1" placeholder="1" /></label>
+          <label>Nombre<input id="u-name" type="text" placeholder="Nuevo nombre" /></label>
+          <label>Precio<input id="u-price" type="number" min="0" placeholder="850" /></label>
+          <label>Stock<input id="u-stock" type="number" min="0" placeholder="20" /></label>
+        </div>
+        <button id="btn-update" class="btn primary">Actualizar producto</button>
+      </details>
+    </section>
+
+    <section class="card">
+      <h2>Respuesta (JSON)</h2>
+      <div id="response" class="code"><span class="placeholder">Aún no hay respuestas. Usa los botones de arriba.</span></div>
+    </section>
+
+    <section class="card">
+      <h2>Bitácora de la petición</h2>
+      <ul id="log" class="log">
+        <li class="log-empty">Sin actividad todavía.</li>
+      </ul>
+    </section>
+
+    <section class="card hint">
+      <p><strong>¿Qué ocurre detrás de escena?</strong> Cada botón envía la petición al gateway
+      (<code>/api/*</code>, puerto 3000). El gateway la registra y la reenvía al
+      <code>product-service</code> (puerto 3001), que la procesa y devuelve el JSON. Eso puedes
+      verlo en vivo con <code>docker compose logs -f api-gateway</code> y
+      <code>docker compose logs -f product-service</code>.</p>
+    </section>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
