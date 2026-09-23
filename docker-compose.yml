@@ -1,0 +1,54 @@
+# ==============================================================================
+# Docker Compose - API Gateway con NestJS (Investigación II)
+# Define dos servicios que se comunican por una red interna compartida
+# ==============================================================================
+services:
+  # ---------------------------------------------------------------------------
+  # Microservicio de Productos (puerto 3001)
+  # ---------------------------------------------------------------------------
+  product-service:
+    build: ./product-service
+    container_name: product-service
+    ports:
+      - "3001:3001"
+    environment:
+      - PORT=${PRODUCT_SERVICE_PORT:-3001}
+    networks:
+      - api-gateway-network
+    healthcheck:
+      # Verifica que el servicio responde en /health (wget viene en alpine)
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3001/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+    restart: unless-stopped
+
+  # ---------------------------------------------------------------------------
+  # API Gateway (puerto 3000) - punto de entrada único
+  # ---------------------------------------------------------------------------
+  api-gateway:
+    build: ./api-gateway
+    container_name: api-gateway
+    ports:
+      - "3000:3000"
+    environment:
+      - PORT=${GATEWAY_PORT:-3000}
+      - PRODUCT_SERVICE_URL=${PRODUCT_SERVICE_URL:-http://product-service:3001}
+    depends_on:
+      product-service:
+        condition: service_healthy
+    networks:
+      - api-gateway-network
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3000/api/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+    restart: unless-stopped
+
+# Red interna compartida: permite que los servicios se comuniquen por nombre
+networks:
+  api-gateway-network:
+    driver: bridge

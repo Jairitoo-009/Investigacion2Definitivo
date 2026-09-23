@@ -1,0 +1,29 @@
+# Dependencias
+node_modules/
+
+# Compilación
+dist/
+build/
+coverage/
+*.tsbuildinfo
+
+# Variables de entorno (la plantilla .env.example SÍ se sube)
+.env
+.env.local
+.env.*.local
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# Editors / SO
+.vscode/
+.idea/
+*.swp
+.DS_Store
+Thumbs.db
+
+# Docker (imágenes locales)
+*.tar
