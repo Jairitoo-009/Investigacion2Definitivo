@@ -3,9 +3,30 @@
 
   const responseEl = document.getElementById('response');
   const logEl = document.getElementById('log');
+  const toastContainer = document.getElementById('toast-container');
 
   function now() {
     return new Date().toISOString().replace('T', ' ').slice(0, 19);
+  }
+
+  function showToast(message, type = 'info') {
+    const Toast = document.createElement('div');
+    Toast.className = `toast toast-${type}`;
+    Toast.textContent = message;
+    toastContainer.appendChild(Toast);
+    const remove = () => Toast.remove();
+    setTimeout(() => {
+      Toast.classList.add('hide');
+      setTimeout(remove, 250);
+    }, 3500);
+    Toast.addEventListener('click', remove);
+  }
+
+  function getServerMessage(data, fallback) {
+    if (!data) return fallback;
+    if (typeof data.message === 'string') return data.message;
+    if (Array.isArray(data.message)) return data.message.join(' · ');
+    return fallback;
   }
 
   function render(data) {
@@ -41,6 +62,12 @@
     logEl.prepend(li);
   }
 
+  const successMessages = {
+    POST: 'Producto creado correctamente',
+    PUT: 'Producto actualizado correctamente',
+    DELETE: 'Producto eliminado',
+  };
+
   async function apiRequest(method, path, body) {
     const start = performance.now();
     try {
@@ -56,19 +83,32 @@
         method,
         path,
         status: res.status,
-        error: isError ? (data && data.message ? JSON.stringify(data.message) : 'Error') : undefined,
+        error: isError ? getServerMessage(data, 'Error') : undefined,
       });
       const durationNode = document.createTextNode(`  · ${duration}ms`);
       logEl.querySelector('li').append(durationNode);
       if (!isError) {
         render(data);
+        if (successMessages[method]) {
+          showToast(successMessages[method], 'success');
+        }
+        if (method === 'POST') clearForm('c-');
       } else {
         render({ status: res.status, ...(data ?? {}) });
+        showToast(getServerMessage(data, 'Ocurrió un error'), 'error');
       }
     } catch (err) {
       addLog({ method, path, status: 'RED', error: err.message || 'Fallo de red' });
       render({ error: err.message || 'Fallo de red' });
+      showToast('No se pudo contactar al gateway', 'error');
     }
+  }
+
+  function clearForm(prefix) {
+    ['name', 'desc', 'price', 'stock', 'id'].forEach((suffix) => {
+      const el = document.getElementById(`${prefix}${suffix}`);
+      if (el) el.value = '';
+    });
   }
 
   function getNumber(id) {
@@ -87,13 +127,13 @@
 
   document.getElementById('btn-get').addEventListener('click', () => {
     const id = getNumber('input-id');
-    if (id === null) return alert('Ingresa un ID válido');
+    if (id === null) return showToast('Ingresa un ID válido', 'error');
     apiRequest('GET', `/products/${id}`);
   });
 
   document.getElementById('btn-delete').addEventListener('click', () => {
     const id = getNumber('input-id');
-    if (id === null) return alert('Ingresa un ID válido');
+    if (id === null) return showToast('Ingresa un ID válido', 'error');
     apiRequest('DELETE', `/products/${id}`);
   });
 
@@ -109,14 +149,14 @@
       stock: parseInt(document.getElementById('c-stock').value, 10),
     };
     if (!body.name || !body.description || isNaN(body.price) || isNaN(body.stock)) {
-      return alert('Completa todos los campos (nombre, descripción, precio y stock)');
+      return showToast('Completa todos los campos (nombre, descripción, precio y stock)', 'error');
     }
     apiRequest('POST', '/products', body);
   });
 
   document.getElementById('btn-update').addEventListener('click', () => {
     const id = getNumber('u-id');
-    if (id === null) return alert('Ingresa un ID válido');
+    if (id === null) return showToast('Ingresa un ID válido', 'error');
     const body = {};
     const name = document.getElementById('u-name').value.trim();
     const price = parseFloat(document.getElementById('u-price').value);
