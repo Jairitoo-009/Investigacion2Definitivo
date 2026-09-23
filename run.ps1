@@ -88,19 +88,25 @@ docker compose ps
 Write-Step "7/7" "Servicios disponibles:"
 Write-Host ""
 Write-Host "  API Gateway (entrada unica):" -ForegroundColor $Green
-Write-Host "    Health : http://localhost:3000/api/health"
+Write-Host "    Health  : http://localhost:3000/api/health"
 Write-Host "    Productos: http://localhost:3000/api/products"
+Write-Host "    Usuarios: http://localhost:3000/api/users"
 Write-Host "    Swagger : http://localhost:3000/docs"
 Write-Host ""
 Write-Host "  Product Service (directo):" -ForegroundColor $Green
-Write-Host "    Health : http://localhost:3001/health"
+Write-Host "    Health  : http://localhost:3001/health"
 Write-Host "    Swagger: http://localhost:3001/docs"
+Write-Host ""
+Write-Host "  Users Service (directo):" -ForegroundColor $Green
+Write-Host "    Health  : http://localhost:3002/health"
+Write-Host "    Swagger: http://localhost:3002/docs"
 Write-Host ""
 
 Write-Host "  Comandos utiles:" -ForegroundColor $Cyan
 Write-Host "    Ver logs en vivo     : docker compose logs -f"
 Write-Host "    Logs del gateway     : docker compose logs -f api-gateway"
 Write-Host "    Logs del product     : docker compose logs -f product-service"
+Write-Host "    Logs de users        : docker compose logs -f users-service"
 Write-Host "    Detener todo         : docker compose down"
 Write-Host "    Probar con curl      : curl http://localhost:3000/api/products"
 Write-Host ""

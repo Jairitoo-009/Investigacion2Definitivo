@@ -16,48 +16,87 @@
     <div class="node client">Cliente<br /><small>Esta página (lado del navegador)</small></div>
     <div class="arrow">&rarr;</div>
     <div class="node gateway">API Gateway<br /><small>:3000</small></div>
-    <div class="arrow">&rarr;</div>
-    <div class="node service">Product Service<br /><small>:3001</small></div>
+    <div class="branches">
+      <div class="branch">
+        <div class="arrow">&rarr;</div>
+        <div class="node service">Product Service<br /><small>:3001</small></div>
+      </div>
+      <div class="branch">
+        <div class="arrow">&rarr;</div>
+        <div class="node service users">Users Service<br /><small>:3002</small></div>
+      </div>
+    </div>
   </section>
 
   <main>
-    <section class="card">
-      <h2>Acciones</h2>
+    <details class="card section-card">
+      <summary>Productos</summary>
 
-      <div class="actions-row">
-        <button id="btn-health" class="btn">Gateway /health</button>
-        <button id="btn-list" class="btn primary">Listar productos</button>
-        <button id="btn-get" class="btn">Obtener por ID</button>
-        <button id="btn-delete" class="btn danger">Eliminar</button>
-      </div>
-
-      <div class="row">
-        <label>ID&nbsp;<input id="input-id" type="number" min="1" placeholder="1" /></label>
-        <button id="btn-get-clear" class="btn ghost">Limpiar</button>
-      </div>
-
-      <details>
-        <summary>Crear producto (POST)</summary>
-        <div class="form-grid">
-          <label>Nombre<input id="c-name" type="text" placeholder="Monitor Samsung" /></label>
-          <label>Descripción<input id="c-desc" type="text" placeholder="Monitor 24 pulgadas" /></label>
-          <label>Precio<input id="c-price" type="number" min="0" placeholder="250" /></label>
-          <label>Stock<input id="c-stock" type="number" min="0" placeholder="15" /></label>
+      <div class="section-inner">
+        <div class="actions-row">
+          <button id="btn-health" class="btn">Gateway /health</button>
+          <button id="btn-list" class="btn primary">Listar productos</button>
+          <button id="btn-get" class="btn">Obtener por ID</button>
+          <button id="btn-delete" class="btn danger">Eliminar</button>
+          <button id="btn-spam" class="btn warn" title="Dispara 40 peticiones seguidas para demostrar el límite del gateway">Rate limit</button>
+          <span id="ratelimit-products" class="ratelimit hidden"></span>
         </div>
-        <button id="btn-create" class="btn primary">Crear producto</button>
-      </details>
 
-      <details>
-        <summary>Actualizar producto (PUT)</summary>
-        <div class="form-grid">
-          <label>ID<input id="u-id" type="number" min="1" placeholder="1" /></label>
-          <label>Nombre<input id="u-name" type="text" placeholder="Nuevo nombre" /></label>
-          <label>Precio<input id="u-price" type="number" min="0" placeholder="850" /></label>
-          <label>Stock<input id="u-stock" type="number" min="0" placeholder="20" /></label>
+        <div class="row">
+          <label>ID&nbsp;<input id="input-id" type="number" min="1" placeholder="1" /></label>
+          <button id="btn-get-clear" class="btn ghost">Limpiar</button>
         </div>
-        <button id="btn-update" class="btn primary">Actualizar producto</button>
-      </details>
-    </section>
+
+        <details>
+          <summary>Crear producto (POST)</summary>
+          <div class="form-grid">
+            <label>Nombre<input id="c-name" type="text" placeholder="Monitor Samsung" /></label>
+            <label>Descripción<input id="c-desc" type="text" placeholder="Monitor 24 pulgadas" /></label>
+            <label>Precio<input id="c-price" type="number" min="0" placeholder="250" /></label>
+            <label>Stock<input id="c-stock" type="number" min="0" placeholder="15" /></label>
+          </div>
+          <button id="btn-create" class="btn primary">Crear producto</button>
+        </details>
+
+        <details>
+          <summary>Actualizar producto (PUT)</summary>
+          <div class="form-grid">
+            <label>ID<input id="u-id" type="number" min="1" placeholder="1" /></label>
+            <label>Nombre<input id="u-name" type="text" placeholder="Nuevo nombre" /></label>
+            <label>Precio<input id="u-price" type="number" min="0" placeholder="850" /></label>
+            <label>Stock<input id="u-stock" type="number" min="0" placeholder="20" /></label>
+          </div>
+          <button id="btn-update" class="btn primary">Actualizar producto</button>
+        </details>
+      </div>
+    </details>
+
+    <details class="card section-card">
+      <summary>Usuarios</summary>
+
+      <div class="section-inner">
+        <div class="actions-row">
+          <button id="btn-users-list" class="btn primary">Listar usuarios</button>
+          <button id="btn-user-get" class="btn">Buscar por ID</button>
+          <button id="btn-users-spam" class="btn warn" title="Dispara 30 peticiones seguidas para demostrar el límite (más estricto) de usuarios">Rate limit</button>
+          <span id="ratelimit-users" class="ratelimit hidden"></span>
+        </div>
+
+        <div class="row">
+          <label>ID&nbsp;<input id="u-input-id" type="number" min="1" placeholder="1" /></label>
+          <button id="btn-user-get-clear" class="btn ghost">Limpiar</button>
+        </div>
+
+        <details>
+          <summary>Crear usuario (POST)</summary>
+          <div class="form-grid">
+            <label>Nombre<input id="u-c-name" type="text" placeholder="Ana Torres" /></label>
+            <label>Email<input id="u-c-email" type="email" placeholder="ana@example.com" /></label>
+          </div>
+          <button id="btn-user-create" class="btn primary">Crear usuario</button>
+        </details>
+      </div>
+    </details>
 
     <section class="card">
       <h2>Respuesta (JSON)</h2>
@@ -73,10 +112,13 @@
 
     <section class="card hint">
       <p><strong>¿Qué ocurre detrás de escena?</strong> Cada botón envía la petición al gateway
-      (<code>/api/*</code>, puerto 3000). El gateway la registra y la reenvía al
-      <code>product-service</code> (puerto 3001), que la procesa y devuelve el JSON. Eso puedes
-      verlo en vivo con <code>docker compose logs -f api-gateway</code> y
-      <code>docker compose logs -f product-service</code>.</p>
+      (<code>/api/*</code>, puerto 3000). El gateway la registra y la reenvía al microservicio
+      correspondiente (<code>product-service</code> :3001 o <code>users-service</code> :3002),
+      que la procesa y devuelve el JSON. El botón <strong>Rate limit</strong> dispara una ráfaga de
+      peticiones para demostrar el <em>rate limiting</em> del gateway: al superar el límite responde
+      <code>429 Too Many Requests</code> y a los pocos segundos vuelve a funcionar. En
+      <strong>productos</strong> el límite es 30 por cada 15 segundos; en <strong>usuarios</strong>
+      es más estricto: 10 por cada 15 segundos.</p>
     </section>
   </main>
 

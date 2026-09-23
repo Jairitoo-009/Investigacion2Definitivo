@@ -63,9 +63,29 @@ h1 {
   background: #10b981;
 }
 
+.node.service.users {
+  background: #8b5cf6;
+}
+
 .arrow {
   font-size: 1.6rem;
   color: #f59e0b;
+}
+
+.branches {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  background: #0f172a;
+  border: 1px dashed #475569;
+  border-radius: 10px;
+  padding: 12px;
+}
+
+.branch {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 main {
@@ -124,6 +144,50 @@ details {
   margin-top: 12px;
 }
 
+.card.section-card {
+  padding: 0;
+}
+
+.card.section-card > summary {
+  cursor: pointer;
+  color: #f1f5f9;
+  font-weight: 700;
+  font-size: 1.05rem;
+  padding: 14px 18px;
+  margin: 0;
+  border-bottom: 1px solid #334155;
+  user-select: none;
+}
+
+.card.section-card > summary:hover {
+  background: #263449;
+}
+
+.card.section-card > details {
+  margin: 0 18px;
+}
+
+.section-inner {
+  padding: 12px 18px 16px;
+}
+
+.ratelimit {
+  display: inline-block;
+  align-self: center;
+  margin-left: 6px;
+  padding: 6px 12px;
+  border-radius: 8px;
+  background: #b45309;
+  color: #fff;
+  font-size: 0.85rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.ratelimit.hidden {
+  display: none;
+}
+
 summary {
   cursor: pointer;
   color: #38bdf8;
@@ -172,6 +236,15 @@ summary {
 
 .btn.danger:hover {
   background: #991b1b;
+}
+
+.btn.warn {
+  background: #b45309;
+  color: #fff;
+}
+
+.btn.warn:hover {
+  background: #92400e;
 }
 
 .btn.ghost {
